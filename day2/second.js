@@ -5,24 +5,28 @@ const lines = [];
 
 const Rule = {
   createRule(ruleString) {
-    this.timesLimitLower = 0;
-    this.timesLimitUpper = 0;
+    this.lowerPlace = 0;
+    this.upperPlace = 0;
     this.letter = '';
     const [freq, string] = ruleString.split(' ');
-    [this.timesLimitLower, this.timesLimitUpper] = freq.split('-');
+    const [lower, upper] = freq.split('-');
+    this.lowerPlace = parseInt(lower, 10) - 1;
+    this.upperPlace = parseInt(upper, 10) - 1;
     this.letter = string;
   },
   checkRule(string) {
-    const num = [...string].reduce((acc, l) => {
-      if (l === this.letter) {
-        return acc + 1;
-      }
-      return acc;
-    }, 0);
-    if (num >= this.timesLimitLower && num <= this.timesLimitUpper) {
-      return true;
+    if (
+      string[this.lowerPlace] === this.letter
+      && string[this.upperPlace] === this.letter
+    ) {
+      return false;
     }
-    return false;
+    if (
+      string[this.lowerPlace] !== this.letter
+      && string[this.upperPlace] !== this.letter) {
+      return false;
+    }
+    return true;
   },
 };
 
