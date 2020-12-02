@@ -15,7 +15,7 @@ const Rule = {
   checkRule(string) {
     const num = [...string].reduce((acc, l) => {
       if (l === this.letter) {
-        return acc += 1;
+        return acc + 1;
       }
       return acc;
     }, 0);
