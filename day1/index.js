@@ -2,8 +2,8 @@ const readline = require('readline');
 const fs = require('fs');
 
 const findProductOfTwo = (array, target) => {
-  for (let j = 0; j < array.length; j++) {
-    for (let i = 0; i < array.length; i++) {
+  for (let j = 0; j < array.length; j += 1) {
+    for (let i = 0; i < array.length; i += 1) {
       if (j !== i && (array[i] + array[j]) === target) {
         return array[i] * array[j];
       }
@@ -13,9 +13,9 @@ const findProductOfTwo = (array, target) => {
 };
 
 const findProductOfThree = (array, target) => {
-  for (let j = 0; j < array.length; j++) {
-    for (let i = 0; i < array.length; i++) {
-      for (let k = 0; k < array.length; k++) {
+  for (let j = 0; j < array.length; j += 1) {
+    for (let i = 0; i < array.length; i += 1) {
+      for (let k = 0; k < array.length; k += 1) {
         if (j !== i
                     && j !== k
                     && (array[i] + array[j] + array[k]) === target) {
