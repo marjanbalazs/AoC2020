@@ -9,7 +9,7 @@ const splitSeating = (line) => [line.slice(0, 7), line.slice(7, line.length)];
 const seatCodesToNumbers = (coding) => [...coding].map((l) => codeToNum(l));
 const numbersToSeatNumbers = (numbers) => numbers.reduce((acc, r, idx) => acc + toVal(r, idx), 0);
 
-const answer = fileContent
+const idList = fileContent
   .split('\r\n')
   .map((line) => splitSeating(line))
   .map(([row, col]) => [
@@ -19,7 +19,15 @@ const answer = fileContent
     numbersToSeatNumbers(row.reverse()),
     numbersToSeatNumbers(col.reverse()),
   ])
-  .map(([row, col]) => row * 8 + col)
-  .reduce((acc, x) => Math.max(acc, x), 0);
+  .map(([row, col]) => row * 8 + col);
 
-console.log(answer);
+console.log(Math.max(...idList));
+
+const secondAnswer = idList
+  .sort((a, b) => a - b)
+  .reduce(
+    (ret, item, index, array) => (item + 2 === array[index + 1] ? item + 1 : ret),
+    0,
+  );
+
+console.log(secondAnswer);
