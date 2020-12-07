@@ -1,7 +1,6 @@
 const input = require('../input');
 
 const fileContents = input('input.txt');
-const compose = (...fns) => (args) => fns.reduceRight((arg, fn) => fn(arg), args);
 
 const transformToContainerParseable = (line) => line.replace(/bags contain/gi, ':').replace(/\.|bags|bag|no|other|\d| /g, '').split(/:|,/g);
 const mapToContainer = (mapObject, array) => {
@@ -10,6 +9,7 @@ const mapToContainer = (mapObject, array) => {
     if (Object.keys(mapObject).includes(b)) {
       mapObject[`${b}`].add(bag);
     } else {
+      // eslint-disable-next-line no-param-reassign
       mapObject[`${b}`] = new Set();
       mapObject[`${b}`].add(bag);
     }
@@ -43,9 +43,10 @@ const transformToContainedParseable = (line) => line.replace(/bags contain/gi, '
 
 const mapToContained = (mapObject, array) => {
   const [bag, ...containingBags] = array;
+  // eslint-disable-next-line no-param-reassign
   mapObject[`${bag}`] = [];
   containingBags.forEach((b) => {
-    for (let i = 0; i < b.slice(0, 1); i++) {
+    for (let i = 0; i < b.slice(0, 1); i += 1) {
       mapObject[`${bag}`].push(b.slice(1, b.length));
     }
   });
