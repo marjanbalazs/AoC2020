@@ -1,10 +1,15 @@
+const timeProfile = require('time-profile');
 const input = require('../input');
+
+const profiler = timeProfile.getProfiler('aProfiler');
 
 const file = input('input.txt');
 
 let accumulator = 0;
 const opMem = file.split('\r\n');
 let opCntr = 0;
+
+profiler.start('app');
 
 function changeInstruction(op) {
   return op.includes('jmp') ? op.replace('jmp', 'nop') : op.replace('nop', 'jmp');
@@ -33,27 +38,40 @@ function go() {
   }
   return false;
 }
-
+profiler.start('first solution');
 go();
+profiler.end('first solution');
 console.log(accumulator);
 
 function findOp() {
   let opCngCntr = 0;
-  accumulator = 0;
-  opCntr = 0;
   while (true) {
+    accumulator = 0;
+    opCntr = 0;
     if (!opMem[opCngCntr].includes('acc')) {
+      accumulator = 0;
+      opCntr = 0;
       opMem[opCngCntr] = changeInstruction(opMem[opCngCntr]);
       if (go()) {
         break;
       }
       opMem[opCngCntr] = changeInstruction(opMem[opCngCntr]);
     }
-    opCntr = 0;
-    accumulator = 0;
     opCngCntr += 1;
   }
 }
 
+profiler.start('second solution');
 findOp();
+profiler.end('second solution');
+
 console.dir(accumulator);
+profiler.end('app');
+// in the end, you can dump the profile data to a json
+// const json = profiler.toJSON(); // [ Entry { name, start, end, duration, pid }, ... ]
+
+// also you can print the profile timeline
+console.log(profiler.toString('this is timeline:'));
+
+// you shoud destroy it when it's not needed anymore
+profiler.destroy();
