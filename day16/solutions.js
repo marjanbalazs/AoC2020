@@ -10,7 +10,7 @@ const nearbyTickets = [];
 const parseFile = (lines) => {
   const firstEmptyLine = lines.indexOf("");
   const secondEmptyLine = lines.indexOf("", firstEmptyLine + 1);
-  myTicket = lines[secondEmptyLine - 1].slice();
+  myTicket = lines[secondEmptyLine - 1].slice().split(",");
   lines.forEach((x, i) => {
     if (i < firstEmptyLine) {
       fields.push(x);
@@ -94,8 +94,6 @@ const validNearbyTickets = getValidNearbyTickets(
   nearbyTickets
 );
 
-// Let's assume that each field range will be valid only for one column on the nearbyTicket 2d array
-
 function mapTicketFieldToColumn(fieldRanges, validNearbyTickets) {
   function isRangeValidForColumn(ranges, columnIndex) {
     return validNearbyTickets.reduce(
@@ -103,7 +101,10 @@ function mapTicketFieldToColumn(fieldRanges, validNearbyTickets) {
         columnValid &&
         ranges.reduce(
           (valid, range) =>
-            valid || (range[0] <= ticket[columnIndex] && ticket[columnIndex] <= range[1]) ? true : false,
+            valid ||
+            (range[0] <= ticket[columnIndex] && ticket[columnIndex] <= range[1])
+              ? true
+              : false,
           false
         )
           ? true
@@ -112,9 +113,16 @@ function mapTicketFieldToColumn(fieldRanges, validNearbyTickets) {
     );
   }
 
-  const mapping = Object.entries(fieldRanges).map(([fieldName, ranges], index) => {
-    return Array(validNearbyTickets[0].length).fill(0).map((_, i) => isRangeValidForColumn(ranges, i));
-  });
+  const mapping = Object.entries(fieldRanges).map(
+    ([fieldName, ranges], index) => {
+      return {
+        fieldName,
+        valid: Array(validNearbyTickets[0].length)
+          .fill(0)
+          .map((_, i) => isRangeValidForColumn(ranges, i)),
+      };
+    }
+  );
   return mapping;
 }
 
@@ -123,4 +131,27 @@ const fieldToColumnMap = mapTicketFieldToColumn(
   validNearbyTickets
 );
 
-console.log(fieldToColumnMap);
+const sortedValidityMap = fieldToColumnMap.sort(
+  (a, b) =>
+    a.valid.reduce((acc, x) => (x ? acc + 1 : acc), 0) -
+    b.valid.reduce((acc, x) => (x ? acc + 1 : acc), 0)
+);
+
+const validityMask = Array(validNearbyTickets[0].length).fill(true);
+
+const fieldAndColumn = sortedValidityMap.map(({ fieldName, valid }) => {
+  const masked = valid.map((v, i) => v && validityMask[i]);
+  const validColumn = masked.indexOf(true);
+  validityMask[validColumn] = false;
+  return {
+    fieldName,
+    validColumn,
+  };
+});
+
+const solution = fieldAndColumn.reduce(
+  (acc, { fieldName, validColumn }) =>
+    fieldName.startsWith("departure") ? myTicket[validColumn] * acc : acc,
+  1
+);
+console.log(solution);
