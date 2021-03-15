@@ -37,17 +37,8 @@ const buildFieldRanges = (fieldLines, fieldRanges) => {
 const validateTickets = (fieldRanges, nearbyTickets) => {
   const isFieldValid = (field) => {
     const ranges = Object.values(fieldRanges); // an array of arrays
-    return ranges.reduce(
-      (validity, fieldRanges) =>
-        validity ||
-        fieldRanges.reduce(
-          (valid, range) =>
-            valid || (range[0] <= field && field <= range[1]) ? true : false,
-          false
-        )
-          ? true
-          : false,
-      false
+    return ranges.some((fieldRanges) =>
+      fieldRanges.some((range) => range[0] <= field && field <= range[1])
     );
   };
   return nearbyTickets.map((ticket) =>
@@ -69,18 +60,6 @@ const calculateErrorRate = (validatedTickets) =>
     0
   );
 
-const getValidNearbyTickets = (validatedTickets, nearbyTickets) => {
-  const getValidTicketArray = (validatedTickets) =>
-    validatedTickets.map((ticket) =>
-      ticket.reduce(
-        (acc, fieldValidity) => (acc && fieldValidity ? true : false),
-        true
-      )
-    );
-  const validTicketArray = getValidTicketArray(validatedTickets);
-  return nearbyTickets.filter((_, i) => validTicketArray[i]);
-};
-
 parseFile(lines);
 const fieldRanges = {};
 buildFieldRanges(fields, fieldRanges);
@@ -89,6 +68,15 @@ const errorRate = calculateErrorRate(validatedTickets);
 
 console.log(errorRate);
 
+const getValidNearbyTickets = (validatedTickets, nearbyTickets) => {
+  const getValidTicketArray = (validatedTickets) =>
+    validatedTickets.map((ticket) =>
+      ticket.every((fieldValidity) => fieldValidity)
+    );
+  const validTicketArray = getValidTicketArray(validatedTickets);
+  return nearbyTickets.filter((_, i) => validTicketArray[i]);
+};
+
 const validNearbyTickets = getValidNearbyTickets(
   validatedTickets,
   nearbyTickets
@@ -96,25 +84,16 @@ const validNearbyTickets = getValidNearbyTickets(
 
 function mapTicketFieldToColumn(fieldRanges, validNearbyTickets) {
   function isRangeValidForColumn(ranges, columnIndex) {
-    return validNearbyTickets.reduce(
-      (columnValid, ticket) =>
-        columnValid &&
-        ranges.reduce(
-          (valid, range) =>
-            valid ||
-            (range[0] <= ticket[columnIndex] && ticket[columnIndex] <= range[1])
-              ? true
-              : false,
-          false
-        )
-          ? true
-          : false,
-      true
+    return validNearbyTickets.every((ticket) =>
+      ranges.some(
+        (range) =>
+          range[0] <= ticket[columnIndex] && ticket[columnIndex] <= range[1]
+      )
     );
   }
 
   const mapping = Object.entries(fieldRanges).map(
-    ([fieldName, ranges], index) => {
+    ([fieldName, ranges]) => {
       return {
         fieldName,
         valid: Array(validNearbyTickets[0].length)
