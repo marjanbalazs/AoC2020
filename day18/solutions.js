@@ -204,5 +204,4 @@ const evaluatedReversePrecedenceLines = lines.map((line) =>
   compose(evaluate, parseReversePrecedent, tokenize)(line)
 );
 
-
 console.log(evaluatedReversePrecedenceLines.reduce((acc, x) => acc + x, 0));
